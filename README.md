@@ -1,5 +1,5 @@
 # react-train-exercise
-Exercise for React hands-on training
+React Train exercise refactored to use ES6
 
 Getting started:
 - `npm install`

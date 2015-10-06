@@ -1,6 +1,6 @@
 var gulp = require('gulp');
 var browserify = require('browserify');
-var reactify = require('reactify');
+var babelify = require('babelify');
 var source = require('vinyl-source-stream');
 var browserSync = require('browser-sync').create();
 
@@ -11,7 +11,7 @@ var paths = {
 
 gulp.task('js', function() {
     browserify(paths.app_js)
-        .transform(reactify)
+        .transform(babelify.configure({ stage: 0 }))
         .bundle()
         .pipe(source('app.js'))
         .pipe(gulp.dest('./public/js'))
