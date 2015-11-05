@@ -1,29 +1,29 @@
 var React = require('react');
-var moment = require('moment-timezone');
 var DepartureDatePicker = require('./departure-datepicker.jsx');
 var Actions = require('./actions');
 var trainStore = require('./store');
 var emptyTrain = require('./emptyTrain.json');
+var parseTime = require('./time-parser');
 
 class SearchBox extends React.Component {
     handleSubmit = (e) => {
         e.preventDefault();
-        var trainNumber = React.findDOMNode(this.refs.trainNumber).value.trim();
-        if (!trainNumber || !this.state.departureDate) {
+        var trainNumber = this.state.trainNumber;
+        var departureDate = this.state.departureDate;
+        if (!trainNumber || !departureDate) {
             return;
         }
-        Actions.trainSearch({
-            trainNumber: trainNumber,
-            departureDate: this.state.departureDate
-        });
+        Actions.trainSearch({trainNumber: trainNumber, departureDate: departureDate});
     }
     handleDateChange = (date) => this.setState({ departureDate: date });
+    handleTrainNumberChange = (event) => this.setState({trainNumber: event.target.value});
     render() {
         return (
             <div className="searchBox">
                 <form className="searchForm" onSubmit={this.handleSubmit}>
                     Train number:<br/>
-                    <input type="text" ref="trainNumber" /><br/>
+                    <input type="text" onChange={this.handleTrainNumberChange}/>
+                    <br/>
                     Departure date:<br/>
                     <DepartureDatePicker handleDateChange={this.handleDateChange} />
                     <input type="submit" value="Search" /><br/>
@@ -47,14 +47,11 @@ class TrainInfo extends React.Component {
 
 class TimeTableRow extends React.Component {
     render() {
-        var scheduledTime = this.props.data.scheduledTime;
-        var time = scheduledTime
-            ? moment(scheduledTime).tz("Europe/Helsinki").format() : '';
         return (
             <tr>
                 <td>{this.props.data.stationShortCode}</td>
                 <td>{this.props.data.type}</td>
-                <td>{scheduledTime}</td>
+                <td>{parseTime(this.props.data.scheduledTime)}</td>
             </tr>
         );
     }
@@ -62,9 +59,9 @@ class TimeTableRow extends React.Component {
 
 class TimeTableRows extends React.Component {
     render() {
-        var timeTableRows = this.props.data.map((ttr) => {
+        var timeTableRows = this.props.data.map(function(ttr, id) {
             return (
-                <TimeTableRow data={ttr} />
+                <TimeTableRow key={id} data={ttr} />
             )
         });
         return (
